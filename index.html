@@ -8,6 +8,12 @@
     <script defer src="index.js"></script>
   </head>
   <body>
+    <!-- Favorites -->
+    <div class="favorites-toggle">
+      <p class="favorites-number">0</p>
+    </div>
+
+    <!-- container -->
     <div class="container">
       <div class="book__title">
         <label for="book-title" class="book__label">Book Title:</label>
@@ -18,7 +24,20 @@
           class="book__input"
           placeholder="write a book title or genre you fancy here..."
         />
-        <button class="btn btn-suggest" type="button">Suggest Book</button>
+        <div class="btns">
+          <div class="search">
+            <select name="terms" title="terms" id="search-by" class="search-by">
+              <option value="title">title</option>
+              <option value="author">author</option>
+              <option value="publisher">publisher</option>
+              <option value="subject">subject</option>
+              <option value="isbn">isbn</option>
+              <option value="lccn">lccn</option>
+            </select>
+          </div>
+
+          <button class="btn btn-suggest" type="button">Suggest Book</button>
+        </div>
       </div>
 
       <!-- books -->
@@ -42,6 +61,7 @@
             </button>
           </div>
         </div> -->
+      </div>
     </div>
   </body>
 </html>
