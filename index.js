@@ -2,8 +2,6 @@ const bookInput = document.querySelector(".book__input");
 const btnSuggest = document.querySelector(".btn-suggest");
 const booksContainer = document.querySelector(".books");
 
-const API_KEY = `AIzaSyCWrjFpNYazw620SD0AfnXx_doKXNDV5RY`;
-
 class Library {
   constructor(title, author) {
     this.bookTitle = title;
