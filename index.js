@@ -16,7 +16,7 @@ class Library {
 btnSuggest.addEventListener("click", () => {
   async function getBooksData() {
     let books;
-    books = await getBookSuggestions(bookInput.value);
+    // books = await getBookSuggestions(bookInput.value);
 
     // console.log(books);
     booksContainer.innerHTML = "";
