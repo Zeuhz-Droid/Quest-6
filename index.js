@@ -3,8 +3,6 @@ const btnSuggest = document.querySelector(".btn-suggest");
 const booksContainer = document.querySelector(".books");
 const favoritesNum = document.querySelector(".favorites-number");
 
-const API_KEY = `AIzaSyCWrjFpNYazw620SD0AfnXx_doKXNDV5RY`;
-
 // let isLoading = false;
 
 class BookInfo {
