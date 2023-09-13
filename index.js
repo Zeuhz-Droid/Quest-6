@@ -3,7 +3,9 @@ const btnSuggest = document.querySelector(".btn-suggest");
 const booksContainer = document.querySelector(".books");
 const favoritesNum = document.querySelector(".favorites-number");
 
-let isLoading = false;
+const API_KEY = `AIzaSyCWrjFpNYazw620SD0AfnXx_doKXNDV5RY`;
+
+// let isLoading = false;
 
 class BookInfo {
   constructor(title, author, read = false) {
@@ -27,122 +29,146 @@ class Favorites {
   }
 }
 
-const favorites = new Favorites();
+class App {
+  #isLoading;
 
-document.addEventListener("click", addBookToFavorite);
+  constructor(input, btn, booksContainer, favoritesEl) {
+    this.#isLoading = false;
 
-btnSuggest.addEventListener("click", () => {
-  async function getBooksData() {
+    this.input = input;
+    this.btn = btn;
+    this.booksContainer = booksContainer;
+    this.favoritesEl = favoritesEl;
+
+    this.favorites = new Favorites();
+
+    this.btn.addEventListener("click", this.getBooksData);
+
+    document.addEventListener("click", this.addBookToFavorite);
+  }
+
+  getBooksData = async () => {
     let books;
 
-    if (!bookInput.value) return;
+    console.log(this);
 
-    if (isLoading) btnSuggest.setAttribute("disabled", "true");
+    if (!this.input.value) return;
 
-    books = await getBookSuggestions(bookInput.value);
+    if (this.#isLoading) this.btn.setAttribute("disabled", "true");
 
-    // console.log(books);
-    booksContainer.innerHTML = "";
+    books = await this.getBookSuggestions(this.input.value);
 
-    bookInput.value = "";
+    console.log(books);
 
-    books.map((book) => createBookElement(book.volumeInfo));
+    this.booksContainer.innerHTML = "";
 
-    isLoading = false;
-  }
-  getBooksData();
-});
+    this.input.value = "";
 
-function addBookToFavorite(e) {
-  if (!e.target.classList.contains("btn-favorite")) return;
+    books.map((book) => this.createBookElement(book.volumeInfo));
 
-  favoritesNum.classList.remove("added");
+    this.#isLoading = false;
+  };
 
-  const book = e.target.closest(".book");
-
-  const title = book.querySelector(".book-titleName").innerText;
-  const author = book.querySelector(".book-author").innerText;
-  const read = book.querySelector(".read input").checked;
-
-  const bookInfo = new BookInfo(title, author, read);
-
-  favorites.addBook(bookInfo);
-
-  favoritesNum.textContent = `${Number(favoritesNum.textContent) + 1}`;
-
-  favoritesNum.classList.add("added");
-
-  e.target.setAttribute("disabled", "true");
-}
-
-async function getBookSuggestions(query, searchBy) {
-  let search_by;
-
-  switch (searchBy) {
-    case "title":
-      search_by = "intitle";
-      break;
-    case "author":
-      search_by = "inauthor";
-      break;
-    case "publisher":
-      search_by = "inpublisher";
-      break;
-    case "subject":
-      search_by = "subject";
-      break;
-    case "isbn":
-      search_by = "isbn";
-      break;
-    case "lccn":
-      search_by = "lccn";
-      break;
-    default:
-      search_by = "";
-      break;
+  shortenWordsLength(words, length) {
+    return words
+      ? words?.split(" ").splice(0, length).join(" ") +
+          (words?.split(" ").length > length ? "..." : "")
+      : "N/A";
   }
 
-  try {
-    isLoading = true;
-    const res = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${query}+${search_by}:${query}&key=${API_KEY}`
-    );
-    const data = await res.json();
-    return data.items;
-  } catch (error) {
-    alert("Book Not Found!");
-  } finally {
-    // alert("Check Below!");
+  addBookToFavorite = (e) => {
+    if (!e.target.classList.contains("btn-favorite")) return;
+
+    this.favoritesEl.classList.remove("added");
+
+    const book = e.target.closest(".book");
+
+    const title = book.querySelector(".book-titleName").innerText;
+    const author = book.querySelector(".book-author").innerText;
+    const read = book.querySelector(".read input").checked;
+
+    const bookInfo = new BookInfo(title, author, read);
+
+    this.favorites.addBook(bookInfo);
+
+    this.favoritesEl.textContent = `${
+      Number(this.favoritesEl.textContent) + 1
+    }`;
+
+    this.favoritesEl.classList.add("added");
+
+    e.target.setAttribute("disabled", "true");
+  };
+
+  getBookSuggestions = async (query, searchBy) => {
+    let search_by;
+
+    switch (searchBy) {
+      case "title":
+        search_by = "intitle";
+        break;
+      case "author":
+        search_by = "inauthor";
+        break;
+      case "publisher":
+        search_by = "inpublisher";
+        break;
+      case "subject":
+        search_by = "subject";
+        break;
+      case "isbn":
+        search_by = "isbn";
+        break;
+      case "lccn":
+        search_by = "lccn";
+        break;
+      default:
+        search_by = "";
+        break;
+    }
+
+    try {
+      this.#isLoading = true;
+      const res = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=${query}+${search_by}:${query}&key=${API_KEY}`
+      );
+      const data = await res.json();
+      return data.items;
+    } catch (error) {
+      alert("Book Not Found!");
+    } finally {
+      alert("Check Below!");
+    }
+  };
+
+  createBookElement(book) {
+    const html = `
+      <div class="book">
+          <img src="${book?.imageLinks?.thumbnail || "N/A"}" alt="${
+      book.etag
+    }" />
+          <div class="book-info">
+          <p class="book-titleName">${this.shortenWordsLength(
+            book.title,
+            10
+          )}</p>
+          <span class="book-author">${book.authors?.[0] || "N/A"}</span>
+          <div class="read">
+              <label for="read-${book.id}">read</label>
+              <input type="checkbox" id="read-${book.id}" />
+          </div>
+          <div class="book-description">
+              <span>Description:</span>
+              ${this.shortenWordsLength(book.description, 51)}
+          </div>
+          <button type="button" class="btn btn-favorite">
+              Add to favorite
+          </button>
+          </div>
+  `;
+
+    this.booksContainer.insertAdjacentHTML("beforeend", html);
   }
 }
 
-function createBookElement(book) {
-  const html = `
-    <div class="book">
-        <img src="${book.imageLinks.thumbnail}" alt="shoe1" />
-        <div class="book-info">
-        <p class="book-titleName">${shortenWordsLength(book.title, 10)}</p>
-        <span class="book-author">${book.authors?.[0] || "N/A"}</span>
-        <div class="read">
-            <label for="read-${book.authors?.[0] || "N/A"}">read</label>
-            <input type="checkbox" id="read-${book.authors?.[0] || "N/A"}" />
-        </div>
-        <div class="book-description">
-            <span>Description:</span>
-            ${shortenWordsLength(book.description, 51)}
-        </div>
-        <button type="button" class="btn btn-favorite">
-            Add to favorite
-        </button>
-        </div>
-`;
-
-  booksContainer.insertAdjacentHTML("beforeend", html);
-}
-
-function shortenWordsLength(words, length) {
-  return words
-    ? words?.split(" ").splice(0, length).join(" ") +
-        (words?.split(" ").length > length ? "..." : "")
-    : "N/A";
-}
+const app = new App(bookInput, btnSuggest, booksContainer, favoritesNum);
