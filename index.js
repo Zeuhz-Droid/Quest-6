@@ -76,35 +76,37 @@ function addBookToFavorite(e) {
 }
 
 async function getBookSuggestions(query, searchBy) {
-  let link;
+  let search_by;
 
   switch (searchBy) {
     case "title":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+intitle:${query}&key=${API_KEY}`;
+      search_by = "intitle";
       break;
     case "author":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+inauthor:${query}&key=${API_KEY}`;
+      search_by = "inauthor";
       break;
     case "publisher":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+inpublisher:${query}&key=${API_KEY}`;
+      search_by = "inpublisher";
       break;
     case "subject":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+subject:${query}&key=${API_KEY}`;
+      search_by = "subject";
       break;
     case "isbn":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+isbn:${query}&key=${API_KEY}`;
+      search_by = "isbn";
       break;
     case "lccn":
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}+lccn:${query}&key=${API_KEY}`;
+      search_by = "lccn";
       break;
     default:
-      link = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${API_KEY}`;
+      search_by = "";
       break;
   }
 
   try {
     isLoading = true;
-    const res = await fetch(link);
+    const res = await fetch(
+      `https://www.googleapis.com/books/v1/volumes?q=${query}+${search_by}:${query}&key=${API_KEY}`
+    );
     const data = await res.json();
     return data.items;
   } catch (error) {
