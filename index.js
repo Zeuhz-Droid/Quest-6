@@ -133,9 +133,9 @@ class App {
       const data = await res.json();
       return data.items;
     } catch (error) {
-      alert("Book Not Found!");
+      alert("Something went wrong!");
     } finally {
-      alert("Check Below!");
+      console.log("Thank you for using Bookie");
     }
   };
 
