@@ -141,7 +141,7 @@ body {
   font-weight: 200;
 }
 
-.book-description {
+.book-subject {
   font-size: 1.1rem;
   font-weight: 300;
   line-height: 1.2rem;
@@ -151,7 +151,8 @@ body {
   grid-row: 3 / 4;
 }
 
-.book-description span {
+.book-subject span,
+.book-author span {
   font-weight: 700;
 }
 

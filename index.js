@@ -48,21 +48,17 @@ class App {
   getBooksData = async () => {
     let books;
 
-    console.log(this);
-
     if (!this.input.value) return;
 
     if (this.#isLoading) this.btn.setAttribute("disabled", "true");
 
     books = await this.getBookSuggestions(this.input.value);
 
-    console.log(books);
-
     this.booksContainer.innerHTML = "";
 
     this.input.value = "";
 
-    books.map((book) => this.createBookElement(book.volumeInfo));
+    books.map((book) => this.createBookElement(book));
 
     this.#isLoading = false;
   };
@@ -103,35 +99,29 @@ class App {
 
     switch (searchBy) {
       case "title":
-        search_by = "intitle";
+        search_by = "title";
         break;
       case "author":
-        search_by = "inauthor";
+        search_by = "author";
         break;
       case "publisher":
-        search_by = "inpublisher";
+        search_by = "publisher";
         break;
       case "subject":
         search_by = "subject";
         break;
-      case "isbn":
-        search_by = "isbn";
-        break;
-      case "lccn":
-        search_by = "lccn";
-        break;
       default:
-        search_by = "";
+        search_by = "q";
         break;
     }
 
+    const link = `https://openlibrary.org/search.json?${search_by}=${query}&fields=*,availability&limit=2`;
+
     try {
       this.#isLoading = true;
-      const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}+${search_by}:${query}&key=${API_KEY}`
-      );
+      const res = await fetch(link);
       const data = await res.json();
-      return data.items;
+      return data.docs;
     } catch (error) {
       alert("Something went wrong!");
     } finally {
@@ -139,25 +129,34 @@ class App {
     }
   };
 
-  createBookElement(book) {
+  createBookElement = async (book) => {
+    console.log(book);
     const html = `
       <div class="book">
-          <img src="${book?.imageLinks?.thumbnail || "N/A"}" alt="${
-      book.etag
-    }" />
-          <div class="book-info">
+          <img src="${
+            `https://covers.openlibrary.org/b/isbn/${book.isbn?.[0][0]}-M.jpg` ||
+            "N/A"
+          }" alt="${book.title_sort}" />
+        <div class="book-info">
           <p class="book-titleName">${this.shortenWordsLength(
             book.title,
             10
           )}</p>
-          <span class="book-author">${book.authors?.[0] || "N/A"}</span>
-          <div class="read">
-              <label for="read-${book.id}">read</label>
-              <input type="checkbox" id="read-${book.id}" />
+          <div class="book-author">
+            <span>author:</span>
+            ${book.author_name?.[0] || "N/A"}
           </div>
-          <div class="book-description">
-              <span>Description:</span>
-              ${this.shortenWordsLength(book.description, 51)}
+          <div class="read">
+              <label for="read-${book.ia_box_id?.[0]}">read</label>
+              <input type="checkbox" id="read-${book.ia_box_id?.[0]}" />
+          </div>
+          <div class="book-subject">
+              <span>subject:</span>
+              ${
+                book.subject
+                  ? book.subject?.splice(0, 10).join(",") + "."
+                  : "N/A"
+              }
           </div>
           <button type="button" class="btn btn-favorite">
               Add to favorite
@@ -166,7 +165,7 @@ class App {
   `;
 
     this.booksContainer.insertAdjacentHTML("beforeend", html);
-  }
+  };
 }
 
 const app = new App(bookInput, btnSuggest, booksContainer, favoritesNum);

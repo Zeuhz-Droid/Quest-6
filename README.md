@@ -25,25 +25,19 @@ Suggest books based on genre, title, authors, publishers and so on...
 ```JavaScript
 switch (searchBy) {
       case "title":
-        search_by = "intitle";
+        search_by = "title";
         break;
       case "author":
-        search_by = "inauthor";
+        search_by = "author";
         break;
       case "publisher":
-        search_by = "inpublisher";
+        search_by = "publisher";
         break;
       case "subject":
         search_by = "subject";
         break;
-      case "isbn":
-        search_by = "isbn";
-        break;
-      case "lccn":
-        search_by = "lccn";
-        break;
       default:
-        search_by = "";
+        search_by = "q";
         break;
     }
 ```
@@ -53,13 +47,11 @@ switch (searchBy) {
 - The Try and Catch Statement is used to fetch book suggestions from Google Book API. The data is sorted after which the required content rendered on DOM.
 
 ```JavaScript
- try {
+try {
       this.#isLoading = true;
-      const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}+${search_by}:${query}&key=${API_KEY}`
-      );
+      const res = await fetch(link);
       const data = await res.json();
-      return data.items;
+      return data.docs;
     } catch (error) {
       alert("Something went wrong!");
     } finally {
