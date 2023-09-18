@@ -115,7 +115,7 @@ class App {
         break;
     }
 
-    const link = `https://openlibrary.org/search.json?${search_by}=${query}&fields=*,availability&limit=2`;
+    const link = `https://openlibrary.org/search.json?${search_by}=${query}&fields=*,availability&limit=15`;
 
     try {
       this.#isLoading = true;
